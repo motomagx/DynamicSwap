@@ -3,12 +3,23 @@
 # Motomagx OS SmartSwap script
 # https://github.com/motomagx/SmartSwap
 
+LOG_DIR="/var/log/smartcache"
+
 rm -r /swap/*
 mkdir -p "/swap/"
+mkdir -p "$LOG_DIR"
 
 LOW_LIMIT=524288
 UPPER_LIMIT=768432
 MAX_SWAP_VOLUMES=256
+LOG_FILE="$LOG_DIR/`date '+%d-%m-%Y_%Hh%Mm%S'`.log"
+
+echo1()
+{
+	echo "[`date '+%d/%m/%Y - %Hh%Mm%S'`] $1" >> "$LOG_FILE"
+}
+
+echo1 "Starting SmartCache script."
 
 while true
 do
@@ -54,7 +65,7 @@ do
 		then 
 			SWAP_ZERO=""
 
-			echo "Creating swapfile volume $SWAP_VOLUMES2"
+			echo1 "Creating swapfile volume $SWAP_VOLUMES2"
 			fallocate -l 256M "/swap/swapfile_$SWAP_VOLUMES2"
 			chmod 0600 "/swap/swapfile_$SWAP_VOLUMES2"
 			mkswap "/swap/swapfile_$SWAP_VOLUMES2"
@@ -84,10 +95,10 @@ do
 			
 			if [ $SWAPOFF_STATUS == 0 ]
 			then
-				echo "Successfully disabled /swap/${DISABLE_VOLUMES[COUNTER]}"
+				echo1 "Successfully disabled /swap/${DISABLE_VOLUMES[COUNTER]}"
 				rm "/swap/${DISABLE_VOLUMES[COUNTER]}"
 			else
-				echo "Error: swapoff /swap/${DISABLE_VOLUMES[COUNTER]} returned $SWAPOFF_STATUS"
+				echo1 "Error: swapoff /swap/${DISABLE_VOLUMES[COUNTER]} returned $SWAPOFF_STATUS"
 			fi
 		fi
 	fi
@@ -104,7 +115,6 @@ do
 	
 	sleep 1s
 done
-
 
 
 
