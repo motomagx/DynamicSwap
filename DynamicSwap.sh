@@ -1,25 +1,36 @@
 #!/bin/bash
  
 # Motomagx OS SmartSwap script
-# https://github.com/motomagx/SmartSwap
+# https://github.com/motomagx/DynamicSwap
 
-LOG_DIR="/var/log/smartcache"
+# Usage: Just run the script as root, with no arguments. The main swap must be deactivated to be relocated by DynamicSwap.
+# By default, the script will trigger an additional 256MB SWAP block, if the total free memory (swap + RAM) is less than 512MB.
+# The script will allocate blocks of 256MB in a row, and the blocks will be deactivated if there is 768MB (512 + 256MB) of RAM free, automatically.
+# When deactivating the adjacent blocks, the data will be reloaded to RAM, eliminating subsequent lags during the loading of the data that would be in the disk swap.
+# The script can also be used in conjunction with zram, which can dramatically reduce consumption and RAM in many cases.
+
+LOG_DIR="/var/log/dynamicswap"
 
 rm -r /swap/*
 mkdir -p "/swap/"
 mkdir -p "$LOG_DIR"
 
-LOW_LIMIT=524288
-UPPER_LIMIT=768432
-MAX_SWAP_VOLUMES=256
+LOW_LIMIT=524288       # 512MB (Value in KB)
+UPPER_LIMIT=768432     # 768MB (Value in KB)
+MAX_SWAP_VOLUMES=256   # As the name says.
+SWAPPINESS_VALUE=20    # 
+
 LOG_FILE="$LOG_DIR/`date '+%d-%m-%Y_%Hh%Mm%S'`.log"
 
+# Automatic writing function in the log file:
 echo1()
 {
 	echo "[`date '+%d/%m/%Y - %Hh%Mm%S'`] $1" >> "$LOG_FILE"
 }
 
 echo1 "Starting SmartCache script."
+
+sysctl vm.swappiness=$SWAPPINESS_VALUE
 
 while true
 do
@@ -32,7 +43,7 @@ do
 	TOTAL_RAM=`echo "$TOTAL_PHYSICAL_RAM + $TOTAL_SWAP" | bc`
 	FREE_RAM=`echo "$FREE_PHYSICAL_RAM + $FREE_SWAP" | bc`
 
-	# Create and enable 256MB adicional volume:
+	# Create and enable 256MB adicional volume, if the lower limit is reached:
 	
 	if [ $FREE_RAM -lt $LOW_LIMIT ]
 	then
@@ -56,10 +67,12 @@ do
 			
 			SWAP_VOLUMES2="$SWAP_ZERO$SWAP_VOLUMES"
 		done
-
+	
+		# Merges the names with the corresponding block ID:
 		SWAP_VOLUMES2="$SWAP_ZERO$SWAP_VOLUMES"
 		
-		#echo "ZERO: $SWAP_ZERO VOLUE: $SWAP_VOLUMES NAME: $SWAP_VOLUMES2"
+		# Debug:
+		# cho "ZERO: $SWAP_ZERO VOLUE: $SWAP_VOLUMES NAME: $SWAP_VOLUMES2"
 		
 		if [ $SWAP_VOLUMES != $MAX_SWAP_VOLUMES ] # Limit to 256 swapfiles volumes
 		then 
