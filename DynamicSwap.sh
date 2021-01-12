@@ -29,7 +29,7 @@ echo1()
 	echo "[`date '+%d/%m/%Y - %Hh%Mm%S'`] $1" >> "$LOG_FILE"
 }
 
-echo1 "Starting SmartCache script."
+echo1 "Starting DynamicSwap script."
 
 sysctl vm.swappiness=$SWAPPINESS_VALUE
 
