@@ -1,6 +1,6 @@
 #!/bin/bash
  
-# Motomagx OS SmartSwap script
+# Motomagx's DynamicSwap script
 # https://github.com/motomagx/DynamicSwap
 
 # Usage: Just run the script as root, with no arguments. The main swap must be deactivated to be relocated by DynamicSwap.
