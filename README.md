@@ -8,3 +8,5 @@ The script will allocate blocks of 256MB in a row, and the blocks will be deacti
 When deactivating the adjacent blocks, the data will be reloaded to RAM, eliminating subsequent lags during the loading of the data that would be in the disk swap. <br>
  <br>
 The script can also be used in conjunction with zram, which can dramatically reduce consumption and RAM in many cases. <br>
+<br>
+Note: do not use this script on a BTRFS file system, as this FS does not support swapping.
